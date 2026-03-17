@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./data/sessions:/data/sessions
+    ports:
+      - "18000:8000"
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: telegram_api
+      MYSQL_USER: telegram
+      MYSQL_PASSWORD: telegram
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  mysql_data:
